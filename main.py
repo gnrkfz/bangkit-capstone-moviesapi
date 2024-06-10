@@ -7,7 +7,7 @@ import random
 
 app = FastAPI()
 
-movies_url = "https://storage.googleapis.com/c241ps516-moviesdataset/movies.csv"
+movies_url = "###"
 
 def read_csv():
     response = requests.get(movies_url)
