@@ -25,145 +25,28 @@ def index():
 @app.get("/genres")
 def get_genres():
     df = read_csv()
-    genres = set()
+    genre_count = {}
     for genre_list in df['genres'].dropna():
         for genre in genre_list.split(','):
-            genres.add(genre.strip())
-    return sorted(list(genres))
+            genre = genre.strip()
+            if genre:
+                if genre not in genre_count:
+                    genre_count[genre] = 1
+                else:
+                    genre_count[genre] += 1
+    sorted_genres = sorted(genre_count.items())
+    genre_data = [{"genre": genre, "movie_count": count} for genre, count in sorted_genres]
+    return genre_data
 
 @app.get("/random")
 def get_random_movies():
     df = read_csv()
-    df = df.replace({np.nan: None})
-    num_movies = min(10, len(df))
-    random_movies = random.sample(df.to_dict(orient='records'), num_movies)
-    recommendation_movies = []
-    for movie in random_movies:
-        formatted_genre = ", ".join(genre.strip() for genre in movie['genres'].split(',') if genre.strip())
-        formatted_movie = {
-            "title": f"{movie['title']} ({movie['year']})",
-            "genre": formatted_genre
-        }
-        recommendation_movies.append(formatted_movie)
-    return recommendation_movies
-
-@app.get("/angry")
-def get_angry_movies():
-    df = read_csv()
-    df = df.replace({np.nan: None})
-    filtered_df = df[df['genres'].str.contains('Comedy|Drama|Music|Family|Adventure|Fantasy|Animation|Science Fiction', na=False)]
-    num_movies = min(10, len(filtered_df))
-    random_movies = random.sample(filtered_df.to_dict(orient='records'), num_movies)
-    recommendation_movies = []
-    for movie in random_movies:
-        formatted_genre = ", ".join(genre.strip() for genre in movie['genres'].split(',') if genre.strip())
-        formatted_movie = {
-            "title": f"{movie['title']} ({movie['year']})",
-            "genre": formatted_genre
-        }
-        recommendation_movies.append(formatted_movie)
-    return recommendation_movies
-
-@app.get("/sad")
-def get_sad_movies():
-    df = read_csv()
-    df = df.replace({np.nan: None})
-    filtered_df = df[df['genres'].str.contains('Comedy|Family|Romance|Animation|Music|Adventure|Fantasy|Drama', na=False)]
-    num_movies = min(10, len(filtered_df))
-    random_movies = random.sample(filtered_df.to_dict(orient='records'), num_movies)
-    recommendation_movies = []
-    for movie in random_movies:
-        formatted_genre = ", ".join(genre.strip() for genre in movie['genres'].split(',') if genre.strip())
-        formatted_movie = {
-            "title": f"{movie['title']} ({movie['year']})",
-            "genre": formatted_genre
-        }
-        recommendation_movies.append(formatted_movie)
-    return recommendation_movies
-
-@app.get("/happy")
-def get_happy_movies():
-    df = read_csv()
-    df = df.replace({np.nan: None})
-    filtered_df = df[df['genres'].str.contains('Adventure|Animation|Music|Comedy|Family|Fantasy|Romance|Science Fiction', na=False)]
-    num_movies = min(10, len(filtered_df))
-    random_movies = random.sample(filtered_df.to_dict(orient='records'), num_movies)
-    recommendation_movies = []
-    for movie in random_movies:
-        formatted_genre = ", ".join(genre.strip() for genre in movie['genres'].split(',') if genre.strip())
-        formatted_movie = {
-            "title": f"{movie['title']} ({movie['year']})",
-            "genre": formatted_genre
-        }
-        recommendation_movies.append(formatted_movie)
-    return recommendation_movies
-
-@app.get("/disgust")
-def get_disgust_movies():
-    df = read_csv()
-    df = df.replace({np.nan: None})
-    filtered_df = df[df['genres'].str.contains('Comedy|Adventure|Fantasy|Animation|Music|Science Fiction|Family|Mystery', na=False)]
-    num_movies = min(10, len(filtered_df))
-    random_movies = random.sample(filtered_df.to_dict(orient='records'), num_movies)
-    recommendation_movies = []
-    for movie in random_movies:
-        formatted_genre = ", ".join(genre.strip() for genre in movie['genres'].split(',') if genre.strip())
-        formatted_movie = {
-            "title": f"{movie['title']} ({movie['year']})",
-            "genre": formatted_genre
-        }
-        recommendation_movies.append(formatted_movie)
-    return recommendation_movies
-
-@app.get("/fear")
-def get_fear_movies():
-    df = read_csv()
-    df = df.replace({np.nan: None})
-    filtered_df = df[df['genres'].str.contains('Family|Comedy|Animation|Drama|Fantasy|Adventure|Romance|Music', na=False)]
-    num_movies = min(10, len(filtered_df))
-    random_movies = random.sample(filtered_df.to_dict(orient='records'), num_movies)
-    recommendation_movies = []
-    for movie in random_movies:
-        formatted_genre = ", ".join(genre.strip() for genre in movie['genres'].split(',') if genre.strip())
-        formatted_movie = {
-            "title": f"{movie['title']} ({movie['year']})",
-            "genre": formatted_genre
-        }
-        recommendation_movies.append(formatted_movie)
-    return recommendation_movies
-
-@app.get("/neutral")
-def get_neutral_movies():
-    df = read_csv()
-    filtered_df = df[df['genres'].str.contains('Documentary|Drama|History|Science Fiction|Mystery|Adventure|TV Movie|War', na=False)]
-    num_movies = min(10, len(filtered_df))
-    random_movies = random.sample(filtered_df.to_dict(orient='records'), num_movies)
-    recommendation_movies = []
-    for movie in random_movies:
-        formatted_genre = ", ".join(genre.strip() for genre in movie['genres'].split(',') if genre.strip())
-        formatted_movie = {
-            "title": f"{movie['title']} ({movie['year']})",
-            "genre": formatted_genre
-        }
-        recommendation_movies.append(formatted_movie)
-    return recommendation_movies
-
-@app.get("/surprise")
-def get_surprise_movies():
-    df = read_csv()
-    df = df.replace({np.nan: None})
-    filtered_df = df[df['genres'].str.contains('Mystery|Thriller|Science Fiction|Adventure|Fantasy|Action|Drama|Horror', na=False)]
-    num_movies = min(10, len(filtered_df))
-    random_movies = random.sample(filtered_df.to_dict(orient='records'), num_movies)
-    recommendation_movies = []
-    for movie in random_movies:
-        formatted_genre = ", ".join(genre.strip() for genre in movie['genres'].split(',') if genre.strip())
-        formatted_movie = {
-            "title": f"{movie['title']} ({movie['year']})",
-            "genre": formatted_genre
-        }
-        recommendation_movies.append(formatted_movie)
-    return recommendation_movies
+    if isinstance(df, dict) and "message" in df:
+        return df
+    df = df.where(pd.notnull(df), None)
+    random_movies = df.sample(n=10, random_state=42)
+    movie_list = random_movies.to_dict(orient="records")
+    return movie_list
 
 if __name__ == "__main__":
     import uvicorn
